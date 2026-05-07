@@ -1,4 +1,5 @@
 ﻿using EventEase.Models;
+using EventEase.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,9 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// ✅ Add DbContext (IMPORTANT)
+// Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Blob Storage Service
+builder.Services.AddScoped<BlobStorageService>();
 
 var app = builder.Build();
 

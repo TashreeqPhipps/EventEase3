@@ -28,13 +28,19 @@ namespace EventEase.Controllers
         // GET: Events/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var eventItem = await _context.Events
                 .Include(e => e.Venue)
                 .FirstOrDefaultAsync(m => m.EventId == id);
 
-            if (eventItem == null) return NotFound();
+            if (eventItem == null)
+            {
+                return NotFound();
+            }
 
             return View(eventItem);
         }
@@ -65,10 +71,17 @@ namespace EventEase.Controllers
         // GET: Events/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var eventItem = await _context.Events.FindAsync(id);
-            if (eventItem == null) return NotFound();
+
+            if (eventItem == null)
+            {
+                return NotFound();
+            }
 
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "Location", eventItem.VenueId);
             return View(eventItem);
@@ -79,12 +92,30 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Event eventItem)
         {
-            if (id != eventItem.EventId) return NotFound();
+            if (id != eventItem.EventId)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
-                _context.Update(eventItem);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Update(eventItem);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EventExists(eventItem.EventId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -95,13 +126,28 @@ namespace EventEase.Controllers
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var eventItem = await _context.Events
                 .Include(e => e.Venue)
                 .FirstOrDefaultAsync(m => m.EventId == id);
 
-            if (eventItem == null) return NotFound();
+            if (eventItem == null)
+            {
+                return NotFound();
+            }
+
+            bool hasBookings = await _context.Bookings
+                .AnyAsync(b => b.EventId == eventItem.EventId);
+
+            if (hasBookings)
+            {
+                TempData["ErrorMessage"] = "This event cannot be deleted because it has active bookings.";
+                return RedirectToAction(nameof(Index));
+            }
 
             return View(eventItem);
         }
@@ -112,13 +158,30 @@ namespace EventEase.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var eventItem = await _context.Events.FindAsync(id);
-            if (eventItem != null)
+
+            if (eventItem == null)
             {
-                _context.Events.Remove(eventItem);
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
 
+            bool hasBookings = await _context.Bookings
+                .AnyAsync(b => b.EventId == id);
+
+            if (hasBookings)
+            {
+                TempData["ErrorMessage"] = "This event cannot be deleted because it has active bookings.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Events.Remove(eventItem);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool EventExists(int id)
+        {
+            return _context.Events.Any(e => e.EventId == id);
         }
     }
 }

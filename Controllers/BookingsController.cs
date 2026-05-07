@@ -19,10 +19,23 @@ namespace EventEase.Controllers
         }
 
         // GET: Bookings
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var applicationDbContext = _context.Bookings.Include(b => b.Event);
-            return View(await applicationDbContext.ToListAsync());
+            var bookings = _context.Bookings
+                .Include(b => b.Event)
+                .ThenInclude(e => e.Venue)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                bookings = bookings.Where(b =>
+                    b.BookingReference.Contains(searchString) ||
+                    b.Event.Name.Contains(searchString) ||
+                    b.Event.Venue.Name.Contains(searchString) ||
+                    b.Event.Venue.Location.Contains(searchString));
+            }
+
+            return View(await bookings.ToListAsync());
         }
 
         // GET: Bookings/Details/5
@@ -35,7 +48,9 @@ namespace EventEase.Controllers
 
             var booking = await _context.Bookings
                 .Include(b => b.Event)
+                .ThenInclude(e => e.Venue)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
+
             if (booking == null)
             {
                 return NotFound();
@@ -52,18 +67,26 @@ namespace EventEase.Controllers
         }
 
         // POST: Bookings/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BookingId,BookingDate,BookingReference,EventId")] Booking booking)
         {
+            bool doubleBookingExists = await _context.Bookings
+                .AnyAsync(b => b.EventId == booking.EventId &&
+                               b.BookingDate.Date == booking.BookingDate.Date);
+
+            if (doubleBookingExists)
+            {
+                ModelState.AddModelError("", "This event is already booked for the selected date.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["EventId"] = new SelectList(_context.Events, "EventId", "Name", booking.EventId);
             return View(booking);
         }
@@ -77,17 +100,17 @@ namespace EventEase.Controllers
             }
 
             var booking = await _context.Bookings.FindAsync(id);
+
             if (booking == null)
             {
                 return NotFound();
             }
+
             ViewData["EventId"] = new SelectList(_context.Events, "EventId", "Name", booking.EventId);
             return View(booking);
         }
 
         // POST: Bookings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("BookingId,BookingDate,BookingReference,EventId")] Booking booking)
@@ -95,6 +118,16 @@ namespace EventEase.Controllers
             if (id != booking.BookingId)
             {
                 return NotFound();
+            }
+
+            bool doubleBookingExists = await _context.Bookings
+                .AnyAsync(b => b.BookingId != booking.BookingId &&
+                               b.EventId == booking.EventId &&
+                               b.BookingDate.Date == booking.BookingDate.Date);
+
+            if (doubleBookingExists)
+            {
+                ModelState.AddModelError("", "This event is already booked for the selected date.");
             }
 
             if (ModelState.IsValid)
@@ -115,8 +148,10 @@ namespace EventEase.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["EventId"] = new SelectList(_context.Events, "EventId", "Name", booking.EventId);
             return View(booking);
         }
@@ -131,7 +166,9 @@ namespace EventEase.Controllers
 
             var booking = await _context.Bookings
                 .Include(b => b.Event)
+                .ThenInclude(e => e.Venue)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
+
             if (booking == null)
             {
                 return NotFound();
@@ -146,12 +183,13 @@ namespace EventEase.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var booking = await _context.Bookings.FindAsync(id);
+
             if (booking != null)
             {
                 _context.Bookings.Remove(booking);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

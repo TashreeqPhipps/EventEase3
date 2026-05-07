@@ -1,49 +1,69 @@
 @model EventEase.Models.Venue
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Venue";
 }
 
-<h1>Edit</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h1 class="mb-3">Edit Venue</h1>
+        <p class="text-muted">Update venue details and optionally replace the venue image.</p>
 
-<h4>Venue</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="VenueId" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+        <hr />
+
+        <div class="row">
+            <div class="col-md-6">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <input type="hidden" asp-for="VenueId" />
+                    <input type="hidden" asp-for="ImageUrl" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="control-label fw-bold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter venue name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Location" class="control-label fw-bold"></label>
+                        <input asp-for="Location" class="form-control" placeholder="Enter venue location" />
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Capacity" class="control-label fw-bold"></label>
+                        <input asp-for="Capacity" class="form-control" placeholder="Enter venue capacity" />
+                        <span asp-validation-for="Capacity" class="text-danger"></span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                    {
+                        <div class="form-group mb-3">
+                            <label class="control-label fw-bold">Current Image</label>
+                            <br />
+                            <img src="@Model.ImageUrl" alt="Venue Image" class="img-thumbnail" style="max-width: 250px; height: auto;" />
+                        </div>
+                    }
+
+                    <div class="form-group mb-4">
+                        <label class="control-label fw-bold">Upload New Image</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        <small class="text-muted">Leave empty if you do not want to change the image.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Save Changes" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Back to List</a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

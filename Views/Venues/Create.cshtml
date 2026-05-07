@@ -1,48 +1,57 @@
 @model EventEase.Models.Venue
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Venue";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h1 class="mb-3">Create Venue</h1>
+        <p class="text-muted">Add a new venue and upload an image to local Azure Blob Storage using Azurite.</p>
 
-<h4>Venue</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+        <hr />
+
+        <div class="row">
+            <div class="col-md-6">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="control-label fw-bold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter venue name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Location" class="control-label fw-bold"></label>
+                        <input asp-for="Location" class="form-control" placeholder="Enter venue location" />
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Capacity" class="control-label fw-bold"></label>
+                        <input asp-for="Capacity" class="form-control" placeholder="Enter venue capacity" />
+                        <span asp-validation-for="Capacity" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="control-label fw-bold">Venue Image</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        <small class="text-muted">Upload an image for this venue. The image will be stored in Azurite Blob Storage.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Create Venue" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Back to List</a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
