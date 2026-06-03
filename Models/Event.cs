@@ -8,7 +8,7 @@ namespace EventEase.Models
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [DataType(DataType.DateTime)]
         public DateTime StartDate { get; set; }
@@ -16,10 +16,16 @@ namespace EventEase.Models
         [DataType(DataType.DateTime)]
         public DateTime EndDate { get; set; }
 
-        // Foreign key
+        // Foreign key for Venue
         public int VenueId { get; set; }
 
         public Venue? Venue { get; set; }
+
+        // Foreign key for EventType
+        [Display(Name = "Event Type")]
+        public int EventTypeId { get; set; }
+
+        public EventType? EventType { get; set; }
 
         public ICollection<Booking>? Bookings { get; set; }
     }

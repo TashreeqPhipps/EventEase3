@@ -1,49 +1,69 @@
 @model EventEase.Models.Event
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Event";
 }
 
-<h1>Edit</h1>
+<div class="container mt-4 fade-in">
+    <div class="card shadow-sm p-4">
+        <h1 class="fw-bold mb-3">Edit Event</h1>
+        <p class="text-muted">Update event details, venue, and event type.</p>
 
-<h4>Event</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="EventId" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+        <hr />
+
+        <div class="row">
+            <div class="col-md-6">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <input type="hidden" asp-for="EventId" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="control-label fw-bold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter event name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="StartDate" class="control-label fw-bold"></label>
+                        <input asp-for="StartDate" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EndDate" class="control-label fw-bold"></label>
+                        <input asp-for="EndDate" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="VenueId" class="control-label fw-bold">Venue</label>
+                        <select asp-for="VenueId" class="form-control" asp-items="ViewBag.VenueId">
+                            <option value="">-- Select Venue --</option>
+                        </select>
+                        <span asp-validation-for="VenueId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="EventTypeId" class="control-label fw-bold">Event Type</label>
+                        <select asp-for="EventTypeId" class="form-control" asp-items="ViewBag.EventTypeId">
+                            <option value="">-- Select Event Type --</option>
+                        </select>
+                        <span asp-validation-for="EventTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Save Changes" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Back to List</a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VenueId" class="control-label"></label>
-                <select asp-for="VenueId" class="form-control" asp-items="ViewBag.VenueId"></select>
-                <span asp-validation-for="VenueId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
