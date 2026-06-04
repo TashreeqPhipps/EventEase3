@@ -1,13 +1,28 @@
 /* GLOBAL RESET */
 html {
     font-size: 16px;
+    min-height: 100%;
+    position: relative;
 }
 
 body {
     background: linear-gradient(to right, #f8f9fa, #eef2f7);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin-bottom: 60px;
+    margin-bottom: 0 !important;
     color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* MAIN CONTENT SPACING */
+main {
+    flex: 1;
+    padding-bottom: 180px !important;
+}
+
+.container {
+    padding-bottom: 80px;
 }
 
 /* NAVBAR */
@@ -88,12 +103,15 @@ body {
         color: white;
     }
 
-    .table td, .table th {
+    .table td,
+    .table th {
         padding: 12px;
     }
 
 /* FORMS */
-input, select, textarea {
+input,
+select,
+textarea {
     border-radius: 8px !important;
 }
 
@@ -102,12 +120,33 @@ input, select, textarea {
     box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
 }
 
-/* FOOTER */
+/* FOOTER FIX */
 .footer {
     background: #ffffff;
     text-align: center;
     padding: 15px;
     font-size: 0.9rem;
+    position: static !important;
+    bottom: auto !important;
+    width: 100%;
+    border-top: 1px solid #e5e5e5;
+    line-height: normal !important;
+    white-space: normal !important;
+    margin-top: auto;
+    z-index: 1;
+}
+
+/* BOOTSTRAP DEFAULT FOOTER OVERRIDE */
+body > footer {
+    position: static !important;
+    bottom: auto !important;
+    line-height: normal !important;
+    white-space: normal !important;
+}
+
+/* EXTRA FORM PAGE SPACING */
+form {
+    margin-bottom: 100px;
 }
 
 /* ANIMATIONS */

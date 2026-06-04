@@ -16,6 +16,9 @@ namespace EventEase.Models
         [DataType(DataType.DateTime)]
         public DateTime EndDate { get; set; }
 
+        // Event image stored in Azure Blob Storage
+        public string? ImageUrl { get; set; }
+
         // Foreign key for Venue
         public int VenueId { get; set; }
 

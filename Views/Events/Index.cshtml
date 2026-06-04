@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="fw-bold">Events</h1>
-            <p class="text-muted">Manage events, event types, venues, and advanced filters.</p>
+            <p class="text-muted">Manage events, event images, event types, venues, and advanced filters.</p>
         </div>
 
         <a asp-action="Create" class="btn btn-primary">Create New Event</a>
@@ -85,6 +85,7 @@
         <table class="table table-hover align-middle">
             <thead>
                 <tr>
+                    <th>Image</th>
                     <th>Event Name</th>
                     <th>Event Type</th>
                     <th>Start Date</th>
@@ -100,6 +101,17 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="Event Image" class="img-thumbnail" style="width: 100px; height: 70px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">No image</span>
+                            }
+                        </td>
+
                         <td>@item.Name</td>
                         <td>@item.EventType?.Name</td>
                         <td>@item.StartDate.ToString("dd MMM yyyy")</td>

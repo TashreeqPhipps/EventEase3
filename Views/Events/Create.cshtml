@@ -7,13 +7,13 @@
 <div class="container mt-4 fade-in">
     <div class="card shadow-sm p-4">
         <h1 class="fw-bold mb-3">Create Event</h1>
-        <p class="text-muted">Add a new event and link it to a venue and event type.</p>
+        <p class="text-muted">Add a new event, upload an event image, and link it to a venue and event type.</p>
 
         <hr />
 
         <div class="row">
             <div class="col-md-6">
-                <form asp-action="Create">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <div class="form-group mb-3">
@@ -42,12 +42,18 @@
                         <span asp-validation-for="VenueId" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group mb-4">
+                    <div class="form-group mb-3">
                         <label asp-for="EventTypeId" class="control-label fw-bold">Event Type</label>
                         <select asp-for="EventTypeId" class="form-control" asp-items="ViewBag.EventTypeId">
                             <option value="">-- Select Event Type --</option>
                         </select>
                         <span asp-validation-for="EventTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="control-label fw-bold">Event Image</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        <small class="text-muted">Upload an image for this event. The image will be stored in Azure Blob Storage.</small>
                     </div>
 
                     <div class="form-group">

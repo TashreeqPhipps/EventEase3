@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EventEase.Models;
+using EventEase.Services;
 
 namespace EventEase.Controllers
 {
     public class EventsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly BlobStorageService _blobStorageService;
 
-        public EventsController(ApplicationDbContext context)
+        public EventsController(ApplicationDbContext context, BlobStorageService blobStorageService)
         {
             _context = context;
+            _blobStorageService = blobStorageService;
         }
 
         // GET: Events
@@ -101,8 +105,13 @@ namespace EventEase.Controllers
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Event eventItem)
+        public async Task<IActionResult> Create(Event eventItem, IFormFile? imageFile)
         {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                eventItem.ImageUrl = await _blobStorageService.UploadFileAsync(imageFile);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(eventItem);
@@ -138,11 +147,34 @@ namespace EventEase.Controllers
         // POST: Events/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Event eventItem)
+        public async Task<IActionResult> Edit(int id, Event eventItem, IFormFile? imageFile)
         {
             if (id != eventItem.EventId)
             {
                 return NotFound();
+            }
+
+            var existingEvent = await _context.Events
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EventId == id);
+
+            if (existingEvent == null)
+            {
+                return NotFound();
+            }
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                if (!string.IsNullOrWhiteSpace(existingEvent.ImageUrl))
+                {
+                    await _blobStorageService.DeleteFileAsync(existingEvent.ImageUrl);
+                }
+
+                eventItem.ImageUrl = await _blobStorageService.UploadFileAsync(imageFile);
+            }
+            else
+            {
+                eventItem.ImageUrl = existingEvent.ImageUrl;
             }
 
             if (ModelState.IsValid)
@@ -219,6 +251,11 @@ namespace EventEase.Controllers
             {
                 TempData["ErrorMessage"] = "This event cannot be deleted because it has active bookings.";
                 return RedirectToAction(nameof(Index));
+            }
+
+            if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+            {
+                await _blobStorageService.DeleteFileAsync(eventItem.ImageUrl);
             }
 
             _context.Events.Remove(eventItem);
